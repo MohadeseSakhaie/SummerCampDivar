@@ -3,10 +3,6 @@ const M = 4;
 
 let turn = "R";
 let selectedLines = [];
-//point checker
-let point = { blue: 0, red: 0 }
-let pointValue = document.getElementById('point');
-pointValue.textContent = `Blue Points:${point.blue}, Red Points:${point.red} `;
 
 
 const hoverClasses = { R: "hover-red", B: "hover-blue" };
@@ -82,12 +78,19 @@ const changeTurn = () => {
 	document.getElementById("game-status").innerHTML = playersTurnText(turn);
 
 };
+//point checker
+let point = {
+	blue: 0,
+	red: 0
+}
+let pointValue = document.getElementById('point');
 
 const handleLineClick = (e) => {
-	const bgClass = { B: "bg-red", R: "bg-blue" };
-
+	// const bgClass = { B: "bg-red", R: "bg-blue" };
 	const lineId = e.target.id;
 	const selectedLine = document.getElementById(lineId);
+	let boxComplete = false;
+
 	//console.log(lineId);
 	if (isLineSelected(selectedLine)) {
 		//if line was already selected, return
@@ -96,7 +99,7 @@ const handleLineClick = (e) => {
 	}
 	selectedLines = [...selectedLines, lineId];
 	colorLine(selectedLine);
-	changeTurn();
+
 
 	if (lineId.startsWith('h')) {
 
@@ -115,16 +118,21 @@ const handleLineClick = (e) => {
 		if (isBoxCompleted(boxBelow)) {
 			const gameGridContainer = document.getElementsByClassName("game-grid-container")[0];
 			let boxId = gameGridContainer.querySelector(`#box-${row}-${col}`);
-			boxId.classList.add(bgClass[turn]);
-			const pointer = bgClass[turn] === "R" ? point.red+1 : point.blue+1;
-		
+			boxId.classList.add(bgClasses[turn]);
+			boxComplete = true;
+			//score 
+			const pointer = bgClasses[turn] === "bg-red" ? point.red += 1 : point.blue += 1;
+
 		};
 		if (isBoxCompleted(boxAbove)) {
 			const gameGridContainer = document.getElementsByClassName("game-grid-container")[0];
 			const boxId = gameGridContainer.querySelector(`#box-${row - 1}-${col}`);
-			boxId.classList.add(bgClass[turn]);
-			const pointer = bgClass[turn] === "R" ? point.red + 1 : point.blue + 1;
+			boxId.classList.add(bgClasses[turn]);
+			boxComplete = true;
+			const pointer = bgClasses[turn] === "bg-red" ? point.red += 1 : point.blue += 1;
 
+			// console.log(pointer);//0
+			// console.log(point.blue);//1
 		};
 		isBoxCompleted(boxBelow);
 		isBoxCompleted(boxAbove);
@@ -146,17 +154,35 @@ const handleLineClick = (e) => {
 		if (isBoxCompleted(boxLeft)) {
 			const gameGridContainer = document.getElementsByClassName("game-grid-container")[0];
 			const boxId = gameGridContainer.querySelector(`#box-${row}-${col - 1}`);
-			boxId.classList.add(bgClass[turn]);
+			boxId.classList.add(bgClasses[turn]);
+			boxComplete = true;
+			const pointer = bgClasses[turn] == "bg-red" ? point.red++ : point.blue++;
+			// console.log(pointer);
 		};
+
 		if (isBoxCompleted(boxRight)) {
 			const gameGridContainer = document.getElementsByClassName("game-grid-container")[0];
 			const boxId = gameGridContainer.querySelector(`#box-${row}-${col}`);
-			boxId.classList.add(bgClass[turn]);
+			boxId.classList.add(bgClasses[turn]);
+			boxComplete = true;
+			const pointer = bgClasses[turn] == "bg-red" ? point.red += 1 : point.blue += 1;
+
 		};
 
 		isBoxCompleted(boxLeft);
 		isBoxCompleted(boxRight);
 	}
+	// const pointHandler = addEventListener
+	if (boxComplete == false) {
+		changeTurn()
+	};
+
+	pointValue.textContent = `Blue Points:${point.blue}, Red Points:${point.red} `;
+	if (selectedLines.length === 24) {
+		const winner = point.red > point.blue ? "Red is Winner" : "blue is Winner";
+		const getChangeContextTo = document.getElementById("game-status").innerHTML = `${winner}`;
+	}
+
 }
 
 const colorLine = (selectedLine) => {
